@@ -5,6 +5,8 @@ class Game
 	// Private fields
 	private Parser parser;
 	private Player player;
+	private bool kitchenLocked = true;
+
 	
 
 	// Constructor
@@ -25,6 +27,13 @@ class Game
 		Room lab = new Room("in a computing lab");
 		Room office = new Room("in the computing admin office");
 		Room celler = new Room("You are in the dark celler");
+		Room kitchen = new Room("you are in the dark kitchen");
+		Room library = new Room("In the library");
+		Room hallway = new Room("in a hallway");
+		Room garden = new Room("in the garden");
+
+
+
 
 		// Initialise room exits
 		outside.AddExit("east", theatre);
@@ -32,6 +41,15 @@ class Game
 		outside.AddExit("west", pub);
 
 		theatre.AddExit("west", outside);
+		theatre.AddExit("north", hallway);
+
+
+		hallway.AddExit("south", theatre);
+		hallway.AddExit("east", library);
+
+		library.AddExit("west", hallway);
+
+
 
 		pub.AddExit("east", outside);
 
@@ -40,17 +58,28 @@ class Game
 
 		office.AddExit("west", lab);
 		office.AddExit("down", celler);
+		office.AddExit("east", kitchen);
 
-		celler.AddExit("down", office);
+		celler.AddExit("up", office);
 
-
-
+		kitchen.AddExit("west", office);
 		// Create your Items here
 		// ...
-		Item potion = new Item(5, "potion");
+		Item potion = new Item(3, "potion");
+		Item key = new Item(1, "key");
+		Item small_medkits = new Item(6, "small_medkits");
+		Item medkits = new Item(7, "medkits");
+		Item acid = new Item(2, "acid");
+		Item broken_medkit = new Item(3, "broken_medkit");
+		
 		// And add them to the Rooms
 		// ...
-			theatre.Chest.Put("potion", potion);
+		theatre.Chest.Put("potion", potion);
+		office.Chest.Put("key", key);
+		theatre.Chest.Put("small_medkits", small_medkits);
+		office.Chest.Put("medkits", medkits);
+		outside.Chest.Put("acid", acid);
+		celler.Chest.Put("broken_medkit", broken_medkit);
 
 
 		// Start game outside
@@ -71,7 +100,6 @@ class Game
 			{
 				Console.WriteLine("Thank you for playing you are dei.Try agin!!");
 				return;
-
 			}
 			Command command = parser.GetCommand();
 			finished = ProcessCommand(command);
@@ -80,7 +108,6 @@ class Game
 		Console.WriteLine("Press [Enter] to continue.");
 		Console.ReadLine();
 	}
-
 	// Print out the opening message for the player.
 	private void PrintWelcome()
 	{
@@ -148,8 +175,17 @@ class Game
 		{
 			Console.WriteLine("What do you want to use?");
 			return;
+		}string itemName = command.SecondWord;
+		if(itemName == "key" && kitchenLocked)
+		{
+			kitchenLocked = false;
+			Console.WriteLine(player.Use(itemName));
+			// Console.WriteLine("The door is unlocked.");
+			
+			return;
+
+
 		}
-		string itemName = command.SecondWord;
 		Console.WriteLine(player.Use(itemName));
 
 
@@ -163,7 +199,6 @@ class Game
 		}
 		string itemName = command.SecondWord;
 		player.TakeFromChest(itemName);
-		Console.WriteLine("You take " + itemName);
 	}
 	private void Drop(Command command)
 	{
@@ -175,7 +210,6 @@ class Game
 
 		string itemName = command.SecondWord;
 		player.DropToChest(itemName);
-		Console.WriteLine("You drop " + itemName);
 
 
 
@@ -190,7 +224,7 @@ class Game
 	private void Look()
 	{
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());
-			Console.WriteLine(player.CurrentRoom.GetRoomItems());
+		Console.WriteLine(player.CurrentRoom.GetRoomItems());
 
 
 	}
@@ -222,8 +256,13 @@ class Game
 		{
 			Console.WriteLine("There is no door to "+direction+"!");
 			return;
-		}
+		}if (nextRoom.GetLongDescription().Contains("kitchen") && kitchenLocked)
+		{
+			Console.WriteLine("The door are locked you need a KEY.");
+			return;
 
+		}
+		
 		player.CurrentRoom = nextRoom;
 		player.Damage(5);
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());

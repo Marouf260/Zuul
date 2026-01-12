@@ -6,9 +6,15 @@ class Room
 	private string description;
 	private Inventory chest;
 	private Dictionary<string, Room> exits; // stores exits of this room.
+	private bool Guard;
+	
 
 	// Create a room described "description". Initially, it has no exits.
 	// "description" is something like "in a kitchen" or "in a court yard".
+	public bool HasGuard()
+	{
+		return Guard;
+	}
 	public Inventory Chest
 	{
 		get { return chest; }
@@ -26,9 +32,18 @@ class Room
 
 	}
 	public string GetRoomItems()
-	{
-		return "Items here " + chest.Show();
-	}
+{
+    string items = chest.Show();
+    if (string.IsNullOrEmpty(items))
+    {
+        return "There are no items here.";
+    }
+    else
+    {
+        return "Items here: " + items;
+    }
+}
+
 
 	// Define an exit for this room.
 	public void AddExit(string direction, Room neighbor)

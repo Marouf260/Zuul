@@ -1,3 +1,5 @@
+using Microsoft.VisualBasic.FileIO;
+
 class Inventory
 {
     private int maxWeight;
@@ -52,6 +54,12 @@ class Inventory
     public int FreeWeight()
     {
         return maxWeight - TotalWeight();
+    }public void Delet(string itemName)
+    {
+        
+            items.Remove(itemName);
+        
+        
     }
    
 
