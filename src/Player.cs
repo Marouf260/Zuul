@@ -83,7 +83,7 @@ class Player
             case "key":
                 Heal(5);
                 message = "The door is unlocked.";
-                backpack.Put(itemName,UseItem);
+                // backpack.Put(itemName,UseItem);
                 break;
             case "small_medkits":
                 Heal(10);
@@ -105,7 +105,6 @@ class Player
                 int brokdamage = rand.Next(5, 16);
                 Damage(brokdamage);
                 message =$"You take {brokdamage} damage from drinking broken medkit. Health now:  " + health;
-
                 backpack.Delet(itemName);
                 break;
 
