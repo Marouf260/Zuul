@@ -14,7 +14,7 @@ class Inventory
         string inside = "";
         foreach (string itemName in items.Keys)
         {
-            inside = inside + itemName + ",";
+            inside = inside + itemName + " , ";
         }
         return inside;
     }

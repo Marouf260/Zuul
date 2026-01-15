@@ -1,11 +1,12 @@
 using System;
+using System.Security.Cryptography;
 
 class Game
 {
 	// Private fields
 	private Parser parser;
 	private Player player;
-	private bool kitchenLocked = true;
+	// private bool kitchenLocked = true;
 
 	
 
@@ -26,11 +27,11 @@ class Game
 		Room pub = new Room("in the campus pub");
 		Room lab = new Room("in a computing lab");
 		Room office = new Room("in the computing admin office");
-		Room celler = new Room("You are in the dark celler");
-		Room kitchen = new Room("you are in the dark kitchen");
-		Room library = new Room("In the library");
-		Room hallway = new Room("in a hallway");
-		Room garden = new Room("in the garden");
+		Room cellar = new Room("You are in the dark cellar");
+		Room kitchen = new Room("You are in a dark kitchen with a guard.");
+		Room library = new Room("You are in a quiet library.");
+		Room hallway = new Room("You are standing in a long hallway.");
+		Room classRoom = new Room("You find yourself in a classroom");
 
 
 
@@ -48,7 +49,9 @@ class Game
 		hallway.AddExit("east", library);
 
 		library.AddExit("west", hallway);
-
+		library.AddExit("south", classRoom);
+		// library.AddExit("down", celler);
+		
 
 
 		pub.AddExit("east", outside);
@@ -57,32 +60,41 @@ class Game
 		lab.AddExit("east", office);
 
 		office.AddExit("west", lab);
-		office.AddExit("down", celler);
+		office.AddExit("down", cellar);
 		office.AddExit("east", kitchen);
 
-		celler.AddExit("up", office);
+		cellar.AddExit("up", office);
+		// celler.AddExit("up", library);
+
 
 		kitchen.AddExit("west", office);
+		
 		// Create your Items here
 		// ...
 		Item potion = new Item(3, "potion");
 		Item key = new Item(1, "key");
-		Item small_medkits = new Item(6, "small_medkits");
-		Item medkits = new Item(7, "medkits");
+		Item small_medkits = new Item(6, "small_medkit");
+		Item medkits = new Item(7, "medkit");
 		Item acid = new Item(2, "acid");
 		Item broken_medkit = new Item(3, "broken_medkit");
+		Item axe = new Item(3, "axe");
 		
 		// And add them to the Rooms
 		// ...
 		theatre.Chest.Put("potion", potion);
-		office.Chest.Put("key", key);
 		theatre.Chest.Put("small_medkits", small_medkits);
 		office.Chest.Put("medkits", medkits);
 		outside.Chest.Put("acid", acid);
-		celler.Chest.Put("broken_medkit", broken_medkit);
+		cellar.Chest.Put("broken_medkit", broken_medkit);
+		outside.Chest.Put("axe", axe);
 
 
 		// Start game outside
+		outside.AddGuard(20,key);
+		lab.AddGuard(20, key);
+		kitchen.AddGuard(40,acid);
+		theatre.AddLock();
+
 		player.CurrentRoom = outside;
 	}
 
@@ -98,8 +110,15 @@ class Game
 		{
 			if (!player.IsAlive())
 			{
-				Console.WriteLine("Thank you for playing you are dei.Try agin!!");
+				Console.WriteLine("Thank you for playing you are died.Try agin!!");
 				return;
+			}
+			else if(player.CurrentRoom.GetLongDescription().Contains("classRoom")){
+
+				Console.WriteLine("Congratulations!! You win you are in your classroom");
+
+				return;
+			
 			}
 			Command command = parser.GetCommand();
 			finished = ProcessCommand(command);
@@ -155,6 +174,9 @@ class Game
 			case "use":
 				UseItem(command);
 				break;
+			case "attack":
+				attack(command);
+				break;
 			case "quit":
 				wantToQuit = true;
 				break;
@@ -169,25 +191,65 @@ class Game
 
 	// Print out some help information.
 	// Here we print the mission and a list of the command words.
+private void attack(Command command)
+	{
+		if (!command.HasSecondWord())
+		{
+			Console.WriteLine("What do you want to attack?");
+			return;
+		}else if (!command.HasThirdWord())
+		{
+			Console.WriteLine("At which door do you want to fight the guard? (e.g., 'attack axe east')");
+			return;
+		}else
+			{
+				Console.WriteLine("You can't attack with that!");
+			}
+		
+			string target = command.SecondWord;
+			string itemName = command.ThirdWord;
+			Console.WriteLine(player.UseAxe(itemName));
+		
+		
+
+	
+		
+
+	}
 	private void UseItem(Command command)
 	{
 		if (!command.HasSecondWord())
 		{
 			Console.WriteLine("What do you want to use?");
 			return;
-		}string itemName = command.SecondWord;
-		if(itemName == "key" && kitchenLocked)
-		{
-			kitchenLocked = false;
-			Console.WriteLine(player.Use(itemName));
-			// Console.WriteLine("The door is unlocked.");
-			
-			return;
-
-
 		}
-		Console.WriteLine(player.Use(itemName));
+		string itemName = command.SecondWord;
+		string direction = command.ThirdWord;
+		if (itemName == "key")
+		{
+			if (string.IsNullOrEmpty(direction))
+			{
+				Console.WriteLine("Which door do you want to unlock? (e.g., 'use key east')");
+				return;
+			}
 
+			Room targetRoom = player.CurrentRoom.GetExit(direction);
+			if (targetRoom == null)
+			{
+				Console.WriteLine("There is no door in that direction!");
+			}
+			else
+			{
+				targetRoom.RoomUnlocked(itemName);
+				Console.WriteLine($"Click! You unlocked the door to the {direction}.");
+			}
+			}
+		else
+			{
+				Console.WriteLine(player.Use(itemName));
+			}
+	
+						
 
 	}
 	private void Take(Command command)
@@ -207,13 +269,8 @@ class Game
 			Console.WriteLine("What do you to drop?");
 			return;
 		}
-
 		string itemName = command.SecondWord;
 		player.DropToChest(itemName);
-
-
-
-
 	}
 	private void PrintStatus()
 	{
@@ -222,14 +279,22 @@ class Game
 
 	}
 	private void Look()
+
 	{
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());
 		Console.WriteLine(player.CurrentRoom.GetRoomItems());
-
+		if (player.CurrentRoom.HasGuards())
+		{
+			Console.WriteLine("There are guards in this room!");
+		}
+		else
+		{
+			Console.WriteLine("The room seems quiet. No guards in sight.");
+		}
 
 	}
 	private void PrintHelp()
-	{
+	{ 
 		Console.WriteLine("You are lost. You are alone.");
 		Console.WriteLine("You wander around at the university.");
 		Console.WriteLine();
@@ -247,26 +312,32 @@ class Game
 			Console.WriteLine("Go where?");
 			return;
 		}
-
 		string direction = command.SecondWord;
-
 		// Try to go to the next room.
 		Room nextRoom = player.CurrentRoom.GetExit(direction);
 		if (nextRoom == null)
 		{
 			Console.WriteLine("There is no door to "+direction+"!");
 			return;
-		}if (nextRoom.GetLongDescription().Contains("kitchen") && kitchenLocked)
+		}if (nextRoom.IsRoomLocked())
 		{
 			Console.WriteLine("The door are locked you need a KEY.");
 			return;
+		}
+		if (player.CurrentRoom.HasGuards())
+		{
+			player.Damage(10);
+			Console.WriteLine("You can not go! Thier is a guard beheind the door.");
+			Console.WriteLine("\t");
+			Console.WriteLine("You have to defeat him first: 'attack axe'");
+			Console.WriteLine("you take 10 damage.");
 
+			return;
 		}
 		
 		player.CurrentRoom = nextRoom;
-		player.Damage(5);
+		player.Damage(10);
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());
-		Console.WriteLine("You damage 5 of your health.");
-
+		Console.WriteLine("You damage 10 of your health.");
 	}
 }

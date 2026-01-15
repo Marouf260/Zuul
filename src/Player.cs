@@ -1,3 +1,6 @@
+using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+
 class Player
 {
     public Room CurrentRoom { get; set; }
@@ -15,7 +18,8 @@ class Player
 
     public void Damage(int amount)
     {
-        health = health - amount;
+        health = Math.Max(health - amount, 0);
+
     }
     public void Heal(int amount)
     {
@@ -32,7 +36,7 @@ class Player
     }
     public bool TakeFromChest(string itemName)
     {
-        Item GetItem = CurrentRoom.DeletItem(itemName);
+        Item GetItem = CurrentRoom.Chest.Get(itemName);
         if (GetItem == null)
         {
             Console.WriteLine($"Thier is no {itemName} to take.");
@@ -62,10 +66,7 @@ class Player
     }
     public string Use(string itemName)
     {
-        if (string.IsNullOrEmpty(itemName))
-        {
-            return "You must specify an item!";
-        }
+      
         Item UseItem = backpack.Get(itemName);
         if (UseItem == null)
         {
@@ -81,38 +82,86 @@ class Player
                 backpack.Delet(itemName);
                 break;
             case "key":
-                Heal(5);
-                message = "The door is unlocked.";
-                // backpack.Put(itemName,UseItem);
+                message = "Click! You unlocked the door .";
+                backpack.Put(itemName,UseItem);
                 break;
-            case "small_medkits":
+            case "small_medkit":
                 Heal(10);
                 message = " Glug! Your health is now : " + health;
                 backpack.Delet(itemName);
                 break;
-             case "medkits":
+            case "medkit":
                 Heal(5);
-                message = " Glug! Your health is now : "+ health;
+                message = " Glug! Your health is now : " + health;
                 backpack.Delet(itemName);
                 break;
             case "acid":
                 int damage = rand.Next(5, 11);
                 Damage(damage);
-                message =$"You take {damage} damage from drinking acid. Health now:  " + health;
+                message = $"You take {damage} damage from drinking acid. Health now:  " + health;
                 backpack.Delet(itemName);
                 break;
             case "broken_medkit":
                 int brokdamage = rand.Next(5, 16);
                 Damage(brokdamage);
-                message =$"You take {brokdamage} damage from drinking broken medkit. Health now:  " + health;
+                message = $"You take {brokdamage} damage from drinking broken medkit. Health now:  " + health;
                 backpack.Delet(itemName);
                 break;
 
-                default:
-            message = $"You use {itemName}, but nothing happens.";
-            break;
-           
+            default:
+                message = $"You use {itemName}, but nothing happens.";
+                break;
+
         }
         return message;
+    }
+    public string UseAxe(string itemName)
+    {
+        Item UseItem = backpack.Get(itemName);
+        if (UseItem == null)
+        {
+            return "You dont have this item in your backpack";
+
+        }
+        string message = "";
+        switch (itemName.ToLower())
+        {
+            case "axe":
+                if (CurrentRoom.HasGuards())
+                {
+                    int damage = rand.Next(10, 20);
+                    AttackGuard(damage);
+                    Console.WriteLine($"you give them {damage} and now them health is {CurrentRoom.HealthGuard()}");
+                }                   
+                     Item loot = CurrentRoom.GetGuardLoot();
+                 if (CurrentRoom.HealthGuard() == 0)
+                {
+                    Console.WriteLine("The guard is died");
+                    Console.WriteLine("You can go"); 
+                    if (loot != null)
+                    {
+                        CurrentRoom.Chest.Put(loot.Description, loot);
+                        Console.WriteLine($"The guard dropped a {loot.Description}!");
+                    }   
+                }
+                else
+                {
+                    Console.WriteLine("In this room ther is no guard");
+                }backpack.Put(itemName,UseItem);
+                break;
+ 
+        }
+        return message;
+    }
+       public void AttackGuard(int damage)
+    {
+        if (CurrentRoom.HasGuards())
+        {
+            int playerDamage = rand.Next(1, 5);
+            CurrentRoom.GuardDamage(damage);
+            Damage(playerDamage);
+            Console.WriteLine($"You take {playerDamage} damge");
+           
+        }
     }
 }
