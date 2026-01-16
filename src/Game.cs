@@ -27,11 +27,11 @@ class Game
 		Room pub = new Room("in the campus pub");
 		Room lab = new Room("in a computing lab");
 		Room office = new Room("in the computing admin office");
-		Room cellar = new Room("You are in the dark cellar");
-		Room kitchen = new Room("You are in a dark kitchen with a guard.");
-		Room library = new Room("You are in a quiet library.");
-		Room hallway = new Room("You are standing in a long hallway.");
-		Room classRoom = new Room("You find yourself in a classroom");
+		Room cellar = new Room("in the dark cellar");
+		Room kitchen = new Room("in a dark kitchen with a guard.");
+		Room library = new Room("in a quiet library.");
+		Room hallway = new Room(" standing in a long hallway.");
+		Room classRoom = new Room("in a classroom");
 
 
 
@@ -115,8 +115,7 @@ class Game
 			}
 			else if(player.CurrentRoom.GetLongDescription().Contains("classRoom")){
 
-				Console.WriteLine("Congratulations!! You win you are in your classroom");
-
+				Console.WriteLine("Congratulations!! You  are in the classroom");
 				return;
 			
 			}
@@ -199,7 +198,7 @@ private void attack(Command command)
 			return;
 		}else if (!command.HasThirdWord())
 		{
-			Console.WriteLine("At which door do you want to fight the guard? (e.g., 'attack axe east')");
+			Console.WriteLine("At which door do you want to fight the guard? (e.g., 'attack guard axe')");
 			return;
 		}else
 			{
@@ -329,7 +328,7 @@ private void attack(Command command)
 			player.Damage(10);
 			Console.WriteLine("You can not go! Thier is a guard beheind the door.");
 			Console.WriteLine("\t");
-			Console.WriteLine("You have to defeat him first: 'attack axe'");
+			// Console.WriteLine("You have to defeat him first: 'attack axe'");
 			Console.WriteLine("you take 10 damage.");
 
 			return;
