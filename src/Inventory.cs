@@ -9,15 +9,7 @@ class Inventory
         this.maxWeight = maxWeight;
         this.items = new Dictionary<string, Item>();
     }
-     public string Show()
-    {
-        string inside = "";
-        foreach (string itemName in items.Keys)
-        {
-            inside = inside + itemName + " , ";
-        }
-        return inside;
-    }
+   
     public bool Put(string itemName,Item item)
     {
         if(FreeWeight() >= item.Weight)
@@ -56,10 +48,19 @@ class Inventory
         return maxWeight - TotalWeight();
     }public void Delet(string itemName)
     {
-        
-            items.Remove(itemName);
-        
-        
+
+        items.Remove(itemName);
+
+
+    }
+      public string Show()
+    {
+        string inside = "";
+        foreach (string itemName in items.Keys)
+        {
+            inside = inside + itemName + " , ";
+        }
+        return inside;
     }
    
 

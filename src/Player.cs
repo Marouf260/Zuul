@@ -1,12 +1,13 @@
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
+// using NAudio.Wave;
 
 class Player
 {
     public Room CurrentRoom { get; set; }
     private int health;
     private Inventory backpack;
-    private Random rand; 
+    private Random rand;
 
     public Player()
     {
@@ -15,25 +16,29 @@ class Player
         backpack = new Inventory(25);
         rand = new Random();
     }
-
+//  Damge en ook niet minder dan 0
     public void Damage(int amount)
     {
         health = Math.Max(health - amount, 0);
 
     }
+    // Hier is de helth en ook mag niet meer dan 100
     public void Heal(int amount)
     {
         health = Math.Min(health + amount, 100);
 
     }
+    // Is de player nog aan het leven?
     public bool IsAlive()
     {
         return health > 0;
     }
+    // get health 
     public int GetHealthStatus()
     {
         return health;
     }
+    // Take item
     public bool TakeFromChest(string itemName)
     {
         Item GetItem = CurrentRoom.Chest.Get(itemName);
@@ -48,6 +53,7 @@ class Player
 
         return true;
     }
+    // items dropen
     public bool DropToChest(string itemName)
     {
         Item DropItem = backpack.Get(itemName);
@@ -60,13 +66,16 @@ class Player
 
         return true;
     }
+    // tas kijken
     public string ShowInventory()
     {
         return backpack.Show();
     }
+
+    // USE item
     public string Use(string itemName)
     {
-      
+
         Item UseItem = backpack.Get(itemName);
         if (UseItem == null)
         {
@@ -83,8 +92,9 @@ class Player
                 break;
             case "key":
                 message = "Click! You unlocked the door .";
-                backpack.Put(itemName,UseItem);
+                backpack.Put(itemName, UseItem);
                 break;
+
             case "small_medkit":
                 Heal(10);
                 message = " Glug! Your health is now : " + health;
@@ -115,6 +125,7 @@ class Player
         }
         return message;
     }
+    // Guard attack met Axe en Sword
     public string UseAxe(string itemName)
     {
         Item UseItem = backpack.Get(itemName);
@@ -123,45 +134,61 @@ class Player
             return "You dont have this item in your backpack";
 
         }
+        backpack.Put(itemName, UseItem);
         string message = "";
-        switch (itemName.ToLower())
+        int damage = 0;
+        if (itemName.ToLower() == "axe")
         {
-            case "axe":
-                if (CurrentRoom.HasGuards())
-                {
-                    int damage = rand.Next(10, 20);
-                    AttackGuard(damage);
-                    Console.WriteLine($"you give them {damage} and now them health is {CurrentRoom.HealthGuard()}");
-                }                   
-                     Item loot = CurrentRoom.GetGuardLoot();
-                 if (CurrentRoom.HealthGuard() == 0)
-                {
-                    Console.WriteLine("The guard is died");
-                    Console.WriteLine("You can go"); 
-                    if (loot != null)
-                    {
-                        CurrentRoom.Chest.Put(loot.Description, loot);
-                        Console.WriteLine($"The guard dropped a {loot.Description}!");
-                    }   
-                }
-                else
-                {
-                    Console.WriteLine("In this room ther is no guard");
-                }backpack.Put(itemName,UseItem);
-                break;
- 
+            damage = rand.Next(5, 10);
+        }
+        else if (itemName.ToLower() == "sword")
+
+        {
+            message ="🗡️";
+            damage = rand.Next(10, 20);
+        }
+        else
+        {
+            return $"You cannot attack with {itemName}.";
+        }
+        if (CurrentRoom.HasAliveGuard())
+        {
+            AttackGuard(damage);
+            message = $"You hit the guard 🛡️  ,with {itemName} for {damage} damage🩸  . Guard health: {CurrentRoom.RoomGuard.GetHealth()}❤️\n";
+
+        }
+        else
+        {
+            return "There is no guard in this room.";
+        }
+        if (!CurrentRoom.RoomGuard.IsAlive())
+        {
+            message += "The guard is dead 🛡️💀 .\nYou can go now.";
+
+            Item loot = CurrentRoom.RoomGuard.Loot();
+            if (loot != null)
+            {
+                CurrentRoom.Chest.Put(loot.Description, loot);
+                message += $"\nThe guard dropped a {loot.Description}!";
+            }
         }
         return message;
     }
-       public void AttackGuard(int damage)
+    // Die is om de guard te damage
+    public void AttackGuard(int damage)
     {
-        if (CurrentRoom.HasGuards())
+        if (CurrentRoom.HasAliveGuard())
         {
-            int playerDamage = rand.Next(1, 5);
-            CurrentRoom.GuardDamage(damage);
-            Damage(playerDamage);
-            Console.WriteLine($"You take {playerDamage} damge");
-           
+          
+            CurrentRoom.RoomGuard.TakeDamage(damage);
+
+
+            if (CurrentRoom.RoomGuard.IsAlive())
+            {
+                  int playerDamage = rand.Next(1, 10);
+                Damage(playerDamage);
+                Console.WriteLine($"The guard hits back! You take {playerDamage} damage 🗡️ 🩸."); 
+            }
         }
     }
 }

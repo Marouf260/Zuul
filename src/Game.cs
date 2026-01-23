@@ -6,7 +6,6 @@ class Game
 	// Private fields
 	private Parser parser;
 	private Player player;
-	// private bool kitchenLocked = true;
 
 	
 
@@ -18,20 +17,19 @@ class Game
 		CreateRooms();
 	}
 
-	// Initialise the Rooms (and the Items)
 	private void CreateRooms()
 	{
 		// Create the rooms
-		Room outside = new Room("outside the main entrance of the university");
-		Room theatre = new Room("in a lecture theatre");
-		Room pub = new Room("in the campus pub");
-		Room lab = new Room("in a computing lab");
-		Room office = new Room("in the computing admin office");
-		Room cellar = new Room("in the dark cellar");
-		Room kitchen = new Room("in a dark kitchen with a guard.");
-		Room library = new Room("in a quiet library.");
-		Room hallway = new Room(" standing in a long hallway.");
-		Room classRoom = new Room("in a classroom");
+		Room outside = new Room("outside the main entrance of the university 🏛️.");
+		Room theatre = new Room("in a lecture theatre 👨‍🏫.");
+		Room pub = new Room("in the campus pub.");
+		Room lab = new Room("in a computing lab 🖥️.");
+		Room office = new Room("in the computing admin office 🖥️ 🏢.");
+		Room cellar = new Room("in the dark cellar 🕯️ 🏚️ 🧭.");
+		Room kitchen = new Room("in a dark kitchen with a guard 🍳 💀 🛡️ .");
+		Room library = new Room("in a quiet library 🏛️ 📚 🪑.");
+		Room hallway = new Room(" standing in a long hallway 🏫🧍🧍🚪.");
+		Room classRoom = new Room("in a classroom 👩‍🏫 🪑 📚");
 
 
 
@@ -50,7 +48,7 @@ class Game
 
 		library.AddExit("west", hallway);
 		library.AddExit("south", classRoom);
-		// library.AddExit("down", celler);
+		
 		
 
 
@@ -64,7 +62,7 @@ class Game
 		office.AddExit("east", kitchen);
 
 		cellar.AddExit("up", office);
-		// celler.AddExit("up", library);
+		// celler.("up", );
 
 
 		kitchen.AddExit("west", office);
@@ -78,7 +76,8 @@ class Game
 		Item acid = new Item(2, "acid");
 		Item broken_medkit = new Item(3, "broken_medkit");
 		Item axe = new Item(3, "axe");
-		
+		Item sword = new Item(3, "sword");
+
 		// And add them to the Rooms
 		// ...
 		theatre.Chest.Put("potion", potion);
@@ -87,13 +86,16 @@ class Game
 		outside.Chest.Put("acid", acid);
 		cellar.Chest.Put("broken_medkit", broken_medkit);
 		outside.Chest.Put("axe", axe);
-
+		outside.Chest.Put("sword", sword);
 
 		// Start game outside
-		outside.AddGuard(20,key);
-		lab.AddGuard(20, key);
-		kitchen.AddGuard(40,acid);
-		theatre.AddLock();
+        Guards Boss = new Guards(100, key); 
+        Guards boss = new Guards(100, medkits); 
+        hallway.AddLock(); 
+		outside.RoomGuard = Boss;
+        kitchen.RoomGuard =  boss;
+        theatre.RoomGuard =  boss;
+
 
 		player.CurrentRoom = outside;
 	}
@@ -110,10 +112,10 @@ class Game
 		{
 			if (!player.IsAlive())
 			{
-				Console.WriteLine("Thank you for playing you are died.Try agin!!");
+				Console.WriteLine("Thank you for playing you're died! Try agin!!");
 				return;
 			}
-			else if(player.CurrentRoom.GetLongDescription().Contains("classRoom")){
+			 if(player.CurrentRoom.GetLongDescription().Contains("classRoom")){
 
 				Console.WriteLine("Congratulations!! You  are in the classroom");
 				return;
@@ -136,20 +138,17 @@ class Game
 		Console.WriteLine();
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());
 	}
-
 	// Given a command, process (that is: execute) the command.
 	// If this command ends the game, it returns true.
 	// Otherwise false is returned.
 	private bool ProcessCommand(Command command)
 	{
 		bool wantToQuit = false;
-
 		if (command.IsUnknown())
 		{
 			Console.WriteLine("I don't know what you mean...");
 			return wantToQuit; // false
 		}
-
 		switch (command.CommandWord)
 		{
 			case "help":
@@ -176,6 +175,7 @@ class Game
 			case "attack":
 				attack(command);
 				break;
+			
 			case "quit":
 				wantToQuit = true;
 				break;
@@ -183,13 +183,13 @@ class Game
 
 		return wantToQuit;
 	}
-
 	// ######################################
 	// implementations of user commands:
 	// ######################################
 
 	// Print out some help information.
 	// Here we print the mission and a list of the command words.
+
 private void attack(Command command)
 	{
 		if (!command.HasSecondWord())
@@ -207,13 +207,15 @@ private void attack(Command command)
 		
 			string target = command.SecondWord;
 			string itemName = command.ThirdWord;
+			if (target is "guard")
+		{
 			Console.WriteLine(player.UseAxe(itemName));
-		
-		
 
-	
-		
-
+		}
+		else
+		{
+			Console.WriteLine("What do you want to attack ??");
+		}
 	}
 	private void UseItem(Command command)
 	{
@@ -247,9 +249,6 @@ private void attack(Command command)
 			{
 				Console.WriteLine(player.Use(itemName));
 			}
-	
-						
-
 	}
 	private void Take(Command command)
 	{
@@ -282,14 +281,14 @@ private void attack(Command command)
 	{
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());
 		Console.WriteLine(player.CurrentRoom.GetRoomItems());
-		if (player.CurrentRoom.HasGuards())
-		{
-			Console.WriteLine("There are guards in this room!");
-		}
-		else
-		{
-			Console.WriteLine("The room seems quiet. No guards in sight.");
-		}
+	if (player.CurrentRoom.HasAliveGuard())
+{
+    Console.WriteLine("There are guards in this room!");
+}
+else
+{
+    Console.WriteLine("The room seems quiet. No guards in sight.");
+}
 
 	}
 	private void PrintHelp()
@@ -318,22 +317,13 @@ private void attack(Command command)
 		{
 			Console.WriteLine("There is no door to "+direction+"!");
 			return;
-		}if (nextRoom.IsRoomLocked())
-		{
-			Console.WriteLine("The door are locked you need a KEY.");
-			return;
-		}
-		if (player.CurrentRoom.HasGuards())
-		{
-			player.Damage(10);
-			Console.WriteLine("You can not go! Thier is a guard beheind the door.");
-			Console.WriteLine("\t");
-			// Console.WriteLine("You have to defeat him first: 'attack axe'");
-			Console.WriteLine("you take 10 damage.");
+		} if (nextRoom.IsRoomLocked())
+        {
+            Console.WriteLine("The door is locked.");
+            return;
+        }
+	
 
-			return;
-		}
-		
 		player.CurrentRoom = nextRoom;
 		player.Damage(10);
 		Console.WriteLine(player.CurrentRoom.GetLongDescription());
