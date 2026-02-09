@@ -11,6 +11,7 @@ class Guards
     }
 //  Is de guard aan het leven?
     public bool IsAlive()
+
     {
         return health > 0;
     }

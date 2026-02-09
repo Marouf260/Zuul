@@ -207,7 +207,7 @@ private void attack(Command command)
 		
 			string target = command.SecondWord;
 			string itemName = command.ThirdWord;
-			if (target is "guard")
+			if (target == "guard")
 		{
 			Console.WriteLine(player.UseAxe(itemName));
 

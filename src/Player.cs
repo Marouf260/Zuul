@@ -144,8 +144,8 @@ class Player
         else if (itemName.ToLower() == "sword")
 
         {
-            message ="🗡️";
-            damage = rand.Next(10, 20);
+            Console.WriteLine("🗡️");
+            damage = rand.Next(10, 25);
         }
         else
         {
@@ -154,7 +154,7 @@ class Player
         if (CurrentRoom.HasAliveGuard())
         {
             AttackGuard(damage);
-            message = $"You hit the guard 🛡️  ,with {itemName} for {damage} damage🩸  . Guard health: {CurrentRoom.RoomGuard.GetHealth()}❤️\n";
+            message = $"You hit the guard 🛡️ 🛡️  ,with {itemName} for {damage} damage🩸 🩸  . Guard health: {CurrentRoom.RoomGuard.GetHealth()}❤️\n";
 
         }
         else
@@ -179,10 +179,7 @@ class Player
     {
         if (CurrentRoom.HasAliveGuard())
         {
-          
             CurrentRoom.RoomGuard.TakeDamage(damage);
-
-
             if (CurrentRoom.RoomGuard.IsAlive())
             {
                   int playerDamage = rand.Next(1, 10);
