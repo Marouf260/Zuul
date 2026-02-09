@@ -29,7 +29,7 @@ class Game
 		Room kitchen = new Room("in a dark kitchen with a guard 🍳 💀 🛡️ .");
 		Room library = new Room("in a quiet library 🏛️ 📚 🪑.");
 		Room hallway = new Room(" standing in a long hallway 🏫🧍🧍🚪.");
-		Room classRoom = new Room("in a classroom 👩‍🏫 🪑 📚");
+		Room classroom = new Room("in a classroom 👩‍🏫 🪑 📚");
 
 
 
@@ -47,7 +47,7 @@ class Game
 		hallway.AddExit("east", library);
 
 		library.AddExit("west", hallway);
-		library.AddExit("south", classRoom);
+		library.AddExit("south", classroom);
 		
 		
 
@@ -115,12 +115,15 @@ class Game
 				Console.WriteLine("Thank you for playing you're died! Try agin!!");
 				return;
 			}
-			 if(player.CurrentRoom.GetLongDescription().Contains("classRoom")){
-
-				Console.WriteLine("Congratulations!! You  are in the classroom");
+			 if(player.CurrentRoom.GetLongDescription().Contains("classroom")) 
+{
+				Console.WriteLine("Congratulations!! You are in the classroom");
+				finished = true;
 				return;
-			
-			}
+}
+
+			 // In de Play() loop:
+
 			Command command = parser.GetCommand();
 			finished = ProcessCommand(command);
 		}
@@ -175,7 +178,6 @@ class Game
 			case "attack":
 				attack(command);
 				break;
-			
 			case "quit":
 				wantToQuit = true;
 				break;
