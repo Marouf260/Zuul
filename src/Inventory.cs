@@ -46,12 +46,6 @@ class Inventory
     public int FreeWeight()
     {
         return maxWeight - TotalWeight();
-    }public void Delet(string itemName)
-    {
-
-        items.Remove(itemName);
-
-
     }
       public string Show()
     {

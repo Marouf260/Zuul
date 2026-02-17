@@ -60,8 +60,6 @@ class Game
 		office.AddExit("east", kitchen);
 
 		cellar.AddExit("up", office);
-		// celler.("up", );
-
 
 		kitchen.AddExit("west", office);
 		
@@ -80,20 +78,22 @@ class Game
 		// ...
 		theatre.Chest.Put("potion", potion);
 		theatre.Chest.Put("small_medkits", small_medkits);
-		 office.Chest.Put("medkits", medkits);
+		office.Chest.Put("medkits", medkits);
 		outside.Chest.Put("acid", acid);
-		 cellar.Chest.Put("broken_medkit", broken_medkit);
+		cellar.Chest.Put("broken_medkit", broken_medkit);
 		outside.Chest.Put("axe", axe);
 		outside.Chest.Put("sword", sword);
 
 		// Start game outside
-        Guards Boss = new Guards(100, key); 
-        Guards boss = new Guards(100, medkits); 
-        hallway.AddLock(); 
+        Guards Boss = new Guards(100, key);
+		Guards boss = new Guards(100, medkits);
+		
+		hallway.AddLock(); 
+		pub.AddLock(); 
+
 		outside.RoomGuard = Boss;
         kitchen.RoomGuard =  boss;
 		hallway.RoomGuard = boss;
-		
 		player.CurrentRoom = outside;
 	}
 
@@ -112,6 +112,7 @@ class Game
 				Console.WriteLine("Thank you for playing you're died! Try agin!!");
 				return;
 			}
+			
 			if (player.CurrentRoom.GetLongDescription().Contains("classroom"))
 			{
 				Console.WriteLine("Congratulations!! You are in the classroom ");
@@ -187,6 +188,7 @@ class Game
 	// Print out some help information.
 	// Here we print the mission and a list of the command words.
 
+
 private void attack(Command command)
 	{
 		if (!command.HasSecondWord())
@@ -199,7 +201,7 @@ private void attack(Command command)
 			return;
 		}else
 			{
-				Console.WriteLine("You can't attack with that!");
+				Console.WriteLine("You can't attack");
 			}
 		
 			string target = command.SecondWord;

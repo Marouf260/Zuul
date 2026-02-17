@@ -16,17 +16,16 @@ class Player
         backpack = new Inventory(25);
         rand = new Random();
     }
-//  Damge en ook niet minder dan 0
+    //  Damge en ook niet minder dan 0
     public void Damage(int amount)
     {
-        Math.Max(health - amount, 0);
-
+        // Je moet 'health =' ervoor zetten, anders gebeurt er niets!
+        health = Math.Max(health - amount, 0);
     }
-    // Hier is de helth en ook mag niet meer dan 100
     public void Heal(int amount)
     {
-       Math.Min(health + amount, 100);
-
+        // Zelfde hier: sla het resultaat op in de health variabele
+        health = Math.Min(health + amount, 100);
     }
     // Is de player nog aan het leven?
     public bool IsAlive()
@@ -62,6 +61,7 @@ class Player
             Console.WriteLine($"You don't have this item ''{itemName}'' to drop.");
             return false;
         }
+        Console.WriteLine($"You drop {itemName}");
         CurrentRoom.Chest.Put(itemName, DropItem);
 
         return true;
@@ -82,13 +82,14 @@ class Player
             return "You dont have this item in your backpack";
 
         }
+        // Switch met message dat is gedaan om alle item te USE 
         string message = "";
         switch (itemName.ToLower())
         {
             case "potion":
                 Heal(5);
                 message = "Glug! You drank the potion. Your health is now " + health;
-                backpack.Delet(itemName);
+                backpack.Get(itemName);
                 break;
             case "key":
                 message = "Click! You unlocked the door .";
@@ -98,24 +99,24 @@ class Player
             case "small_medkit":
                 Heal(10);
                 message = " Glug! Your health is now : " + health;
-                backpack.Delet(itemName);
+                backpack.Get(itemName);
                 break;
             case "medkit":
                 Heal(5);
                 message = " Glug! Your health is now : " + health;
-                backpack.Delet(itemName);
+                backpack.Get(itemName);
                 break;
             case "acid":
                 int damage = rand.Next(5, 11);
                 Damage(damage);
                 message = $"You take {damage} damage from drinking acid. Health now:  " + health;
-                backpack.Delet(itemName);
+                backpack.Get(itemName);
                 break;
             case "broken_medkit":
                 int brokdamage = rand.Next(5, 16);
                 Damage(brokdamage);
                 message = $"You take {brokdamage} damage from drinking broken medkit. Health now:  " + health;
-                backpack.Delet(itemName);
+                backpack.Get(itemName);
                 break;
 
             default:
@@ -137,11 +138,11 @@ class Player
         backpack.Put(itemName, UseItem);
         string message = "";
         int damage = 0;
-        if (itemName.ToLower() == "axe")
+        if (itemName == "axe")
         {
             damage = rand.Next(5, 10);
         }
-        else if (itemName.ToLower() == "sword")
+        else if (itemName == "sword")
 
         {
             Console.WriteLine("🗡️");
@@ -154,7 +155,7 @@ class Player
         if (CurrentRoom.HasAliveGuard())
         {
             AttackGuard(damage);
-            message = $"You hit the guard 🛡️   ,with {itemName} for {damage} damage🩸 🩸  . Guard health: {CurrentRoom.RoomGuard.GetHealth()}❤️\n";
+            message = $"You hit the guard 🛡️ ,with {itemName} for {damage} damage🩸 . Guard health: {CurrentRoom.RoomGuard.GetHealth()}❤️\n";
 
         }
         else
@@ -163,13 +164,13 @@ class Player
         }
         if (!CurrentRoom.RoomGuard.IsAlive())
         {
-            message += "The guard is dead 💀 .\nYou can go now.";
+            message += "\nThe guard is dead 💀 .\nYou can go now.";
 
             Item loot = CurrentRoom.RoomGuard.Loot();
             if (loot != null)
             {
                 CurrentRoom.Chest.Put(loot.Description, loot);
-                message += $"\nThe guard dropped a {loot.Description}!";
+                message += $"\n\nThe guard dropped a {loot.Description}!";
             }
         }
         return message;
@@ -184,7 +185,7 @@ class Player
             {
                   int playerDamage = rand.Next(1, 10);
                 Damage(playerDamage);
-                Console.WriteLine($"The guard hits back! You take {playerDamage} damage 🗡️ 🩸."); 
+                Console.WriteLine($"The guard hits back! You take {playerDamage} damage 🩸."); 
             }
         }
     }
