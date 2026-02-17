@@ -19,13 +19,13 @@ class Player
 //  Damge en ook niet minder dan 0
     public void Damage(int amount)
     {
-        health = Math.Max(health - amount, 0);
+        Math.Max(health - amount, 0);
 
     }
     // Hier is de helth en ook mag niet meer dan 100
     public void Heal(int amount)
     {
-        health = Math.Min(health + amount, 100);
+       Math.Min(health + amount, 100);
 
     }
     // Is de player nog aan het leven?
@@ -154,7 +154,7 @@ class Player
         if (CurrentRoom.HasAliveGuard())
         {
             AttackGuard(damage);
-            message = $"You hit the guard 🛡️ 🛡️  ,with {itemName} for {damage} damage🩸 🩸  . Guard health: {CurrentRoom.RoomGuard.GetHealth()}❤️\n";
+            message = $"You hit the guard 🛡️   ,with {itemName} for {damage} damage🩸 🩸  . Guard health: {CurrentRoom.RoomGuard.GetHealth()}❤️\n";
 
         }
         else
@@ -163,7 +163,7 @@ class Player
         }
         if (!CurrentRoom.RoomGuard.IsAlive())
         {
-            message += "The guard is dead 🛡️💀 .\nYou can go now.";
+            message += "The guard is dead 💀 .\nYou can go now.";
 
             Item loot = CurrentRoom.RoomGuard.Loot();
             if (loot != null)

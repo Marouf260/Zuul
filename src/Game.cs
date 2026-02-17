@@ -7,8 +7,6 @@ class Game
 	private Parser parser;
 	private Player player;
 
-	
-
 	// Constructor
 	public Game()
 	{
@@ -82,9 +80,9 @@ class Game
 		// ...
 		theatre.Chest.Put("potion", potion);
 		theatre.Chest.Put("small_medkits", small_medkits);
-		office.Chest.Put("medkits", medkits);
+		 office.Chest.Put("medkits", medkits);
 		outside.Chest.Put("acid", acid);
-		cellar.Chest.Put("broken_medkit", broken_medkit);
+		 cellar.Chest.Put("broken_medkit", broken_medkit);
 		outside.Chest.Put("axe", axe);
 		outside.Chest.Put("sword", sword);
 
@@ -94,9 +92,8 @@ class Game
         hallway.AddLock(); 
 		outside.RoomGuard = Boss;
         kitchen.RoomGuard =  boss;
-        theatre.RoomGuard =  boss;
-
-
+		hallway.RoomGuard = boss;
+		
 		player.CurrentRoom = outside;
 	}
 
@@ -115,14 +112,12 @@ class Game
 				Console.WriteLine("Thank you for playing you're died! Try agin!!");
 				return;
 			}
-			 if(player.CurrentRoom.GetLongDescription().Contains("classroom")) 
-{
-				Console.WriteLine("Congratulations!! You are in the classroom");
+			if (player.CurrentRoom.GetLongDescription().Contains("classroom"))
+			{
+				Console.WriteLine("Congratulations!! You are in the classroom ");
 				finished = true;
 				return;
-}
-
-			 // In de Play() loop:
+			}
 
 			Command command = parser.GetCommand();
 			finished = ProcessCommand(command);
@@ -256,7 +251,7 @@ private void attack(Command command)
 	{
 		if (!command.HasSecondWord())
 		{
-			Console.WriteLine("What do you take?");
+			Console.WriteLine("What do you want to take?");
 			return;
 		}
 		string itemName = command.SecondWord;
@@ -266,7 +261,7 @@ private void attack(Command command)
 	{
 		if (!command.HasSecondWord())
 		{
-			Console.WriteLine("What do you to drop?");
+			Console.WriteLine("What do you want to drop?");
 			return;
 		}
 		string itemName = command.SecondWord;
@@ -315,6 +310,12 @@ else
 		string direction = command.SecondWord;
 		// Try to go to the next room.
 		Room nextRoom = player.CurrentRoom.GetExit(direction);
+		if (player.CurrentRoom.HasAliveGuard())
+		{
+			Console.WriteLine("The guard is blocking the way! You can't slip past him.🩻");
+			
+			return;
+		}
 		if (nextRoom == null)
 		{
 			Console.WriteLine("There is no door to "+direction+"!");
